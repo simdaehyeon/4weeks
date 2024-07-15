@@ -1,5 +1,5 @@
 function onOpenCvReady() {
-    document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+    document.getElementById('status').innerHTML = 'ready to opencv.js.';
 }
 
 function onOpenCvError() {

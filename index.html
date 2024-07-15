@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Analysis Project</title>
+    <title>4 weeks project</title>
     <link rel="stylesheet" href="style.css">
     <script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();" onerror="onOpenCvError();"></script>
 </head>
 <body>
-    <h1>Face Analysis Project</h1>
+    <h3>4 weeks project</h3>
     <form id="upload-form">
         <input type="file" id="image-upload" accept="image/*">
         <button type="submit">Upload</button>
@@ -17,6 +17,25 @@
         <canvas id="canvasOutput"></canvas>
     </div>
     <div id="status"></div>
+    
+    <!-- OpenAI API 호출 버튼과 결과 영역 추가 -->
+    <div>
+        <button id="fetchButton">지피티 응답 받기</button>
+        <p id="apiResponse"></p>
+    </div>
+
     <script src="app.js"></script>
+    <script>
+        document.getElementById('fetchButton').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/openai');
+                const data = await response.json();
+                document.getElementById('apiResponse').innerText = data.message;
+            } catch (error) {
+                console.error('Error fetching API response:', error);
+                document.getElementById('apiResponse').innerText = 'Error fetching API response';
+            }
+        });
+    </script>
 </body>
 </html>
