@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Analysis Project</title>
     <link rel="stylesheet" href="style.css">
+    <script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();" onerror="onOpenCvError();"></script>
 </head>
 <body>
-    <h1>Face-Analysis-Project</h1>
+    <h1>Face Analysis Project</h1>
     <form id="upload-form">
         <input type="file" id="image-upload" accept="image/*">
         <button type="submit">Upload</button>
     </form>
-    <div id="result"></div>
+    <div id="result">
+        <canvas id="canvasOutput"></canvas>
+    </div>
+    <div id="status"></div>
     <script src="app.js"></script>
 </body>
-
 </html>
