@@ -18,6 +18,8 @@ app.get('/index', (req, res) => {
 app.get('/openai', async (req, res) => {
     try {
         console.log("OpenAI API 호출 시작");
+
+        // OpenAI API에 POST 요청을 보냄
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: "Hello, how are you?" }],
@@ -29,9 +31,13 @@ app.get('/openai', async (req, res) => {
             }
         });
         console.log("OpenAI API 응답:", response.data.choices[0].message.content);
+
+
+        // 클라이언트에 JSON 형식으로 응답을 반환
         res.json({ message: response.data.choices[0].message.content });
     } catch (error) {
         console.error("Error calling OpenAI API:", error);
+        // 오류 발생 시 오류 메시지를 콘솔에 출력하고, 클라이언트에 500 상태 코드로 응답
         res.status(500).send("Error calling OpenAI API");
     }
 });
