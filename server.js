@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 
 // API 키 설정
-const apiKey = 'ㄴㅇㄹ';
+const apiKey = 'ㄴㄴㄴ';
 
 // 정적 파일 제공
 app.use(express.static(path.join()));
@@ -22,11 +22,11 @@ app.get('/openai', async (req, res) => {
         // OpenAI API에 POST 요청을 보냄
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: "Hello, how are you?" }],
+            messages: [{ role: "user", content: "오늘 저녁 메뉴 추천해줘" }],
             max_tokens: 50,
         }, {
             headers: {
-                'Authorization': `Bearer ${apiKey}`,
+                'Authorization': `Bearer ${apiKey}`, //api 인증부분
                 'Content-Type': 'application/json'
             }
         });

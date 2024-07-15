@@ -1,7 +1,7 @@
 # 4weeks
 ### 프로젝트 계획: 얼굴 이미지 분석, 감정 및 피부 상태 평가 시스템
 
-node server.js 하고  작업하기
+node server.js 하고  작업하기, 끌때는 ctrl+ c 누르면 꺼짐 
 
 ### 1주차: 기초 설정 및 환경 구성
 
@@ -11,7 +11,7 @@ node server.js 하고  작업하기
     - 기본적인 프론트엔드 구조 설정 (HTML, CSS, JavaScript)##########
 2. **기술 스택 설치 및 테스트**
     - OpenCV.js 설치 및 테스트##########
-    - OpenAI GPT API 키 발급 및 테스트
+    - OpenAI GPT API 키 발급 및 테스트############
     - Google Text-to-Speech API 키 발급 및 테스트
 3. **기본 인터페이스 구성**
     - 사용자 사진 업로드 폼 구현

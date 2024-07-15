@@ -9,7 +9,10 @@ body {
 }
 
 h1 {
-    margin-bottom: 20px;
+    margin-bottom: 200px;
+    text-align: center;
+
+    
 }
 
 form {
