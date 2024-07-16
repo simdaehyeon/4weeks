@@ -16,93 +16,157 @@ body {
     width: 100%;
     height: 100%;
 }
+ 
+
 
 header {
     position: relative;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     width: 100%;
-    background-color: rgb(124, 189, 238);
+    background: linear-gradient(#8098c9, #ebcd90);
     padding: 30px 0;
     height: 500px;
 }
 
 header h1 {
     color: #f4f4f4;
+    font-size: 45px;
 }
 
 .steps-container {
     position: relative;
     width: 100%;
-    height: 600px; /* 컨테이너의 높이를 step-box와 동일하게 설정 */
+    height: 600px;
 }
-
 .step-box-1 {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* 좌측 상단 정렬 */
+    align-items: flex-start;
     justify-content: flex-start;
-    background-color: #aa9e9e;
-    color: white;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
     padding: 20px;
-    border-radius: 10px;
     margin: 20px 0;
-    position: absolute; /* 절대 위치 지정 */
+    position: absolute;
     width: 100%;
-    height: 600px;
+    height: 700px;
     clip-path: polygon(0 0, calc(100% - 300px) 0, calc(100% - 300px) 70px, 100% 70px, 100% 100%, 0 100%);
-    z-index: 2;
+    z-index: 3;
+    border: 2px solid #000; /* 테두리색 추가 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+    top: 50px; /* 아래로 50px 이동 */
 }
 
 .step-box-2 {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* 좌측 상단 정렬 */
+    align-items: flex-start;
     justify-content: flex-start;
-    background-color: #aa9e9e;
-    color: white;
+    background-color: #b7bcb9;
+    color: rgb(0, 0, 0);
+    padding: 20px;
+    margin: 20px 0;
+    position: absolute;
+    width: 100%;
+    height: 700px;
+    clip-path: polygon(0 0, calc(100% - 200px) 0, calc(100% - 200px) 70px, 100% 70px, 100% 100%, 0 100%);
+    z-index: 2;
+    top: 50px; /* 아래로 50px 이동 */
+    left: 0;
+    border: 2px solid #000; /* 테두리색 추가 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+}
+
+.step-box-3 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    background-color: #5167a8;
+    color: rgb(0, 0, 0);
     padding: 20px;
     border-radius: 10px;
     margin: 20px 0;
-    position: absolute; /* 절대 위치 지정 */
+    position: absolute;
     width: 100%;
-    height: 600px;
-    clip-path: polygon(0 0, calc(100% - 200px) 0, calc(100% - 200px) 70px, 100% 70px, 100% 100%, 0 100%);
+    height: 700px;
+    clip-path: polygon(0 0, calc(100% - 100px) 0, calc(100% - 100px) 70px, 100% 70px, 100% 100%, 0 100%);
     z-index: 1;
-    top: 0;
+    top: 50px; /* 아래로 50px 이동 */
     left: 0;
+    border: 2px solid #000; /* 테두리색 추가 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
 }
+
 
 .step-header {
     display: flex;
     align-items: center;
     width: 100%;
-    justify-content: flex-start; /* 좌측 정렬 */
+    justify-content: flex-start;
     margin-bottom: 20px;
-    position: relative; /* 부모 요소를 기준으로 절대 위치 지정 가능하게 설정 */
+    position: relative;
 }
 
 .step-number {
     background-color: rgb(124, 189, 238);
     padding: 15px;
-    border-radius: 50%;
-    font-size: 20px;
+    border-radius: 10%;
+    font-size: 30px;
     margin-right: 10px;
     z-index: 1;
+    position: absolute;
+    left: 20px;
 }
 
 .step-number2 {
-    background-color: rgb(124, 189, 238);
     padding: 15px;
-    border-radius: 50%;
-    font-size: 20px;
+    font-size: 30px;
     z-index: 2;
     position: absolute;
-    left: calc(100% - 200px + -30px); /* clip-path에서 잘린 부분 바로 옆 */
+    left: calc(100% - 200px - 30px);
+}
+
+.step-number2-1 {
+    background-color: rgb(124, 189, 238);
+    padding: 15px;
+    border-radius: 10%;
+    font-size: 30px;
+    margin-right: 10px;
+    z-index: 1;
+    position: absolute;
+    left: 20px;
+}
+
+
+.step-number3 {
+    padding: 15px;
+    font-size: 30px;
+    z-index: 3;
+    position: absolute;
+    left: calc(100% - 120px - 30px);
 }
 
 .step-description {
     font-size: 20px;
+    margin-left: 70px;
+}
+
+#image-preview-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 450px; /* 원하는 크기로 조정 */
+    margin-top: 20px;
+    border: 2px dashed #ccc; /* 미리보기 공간을 시각적으로 표시 */
+}
+
+#image-preview {
+    max-width: 100%;
+    max-height: 100%;
+    display: none; /* 초기에는 미리보기 이미지를 숨깁니다 */
 }
 
 form {
@@ -110,30 +174,36 @@ form {
     justify-content: center;
     align-items: center;
     width: 100%;
+    margin-top: 20px; /* 폼과 미리보기 컨테이너 사이에 간격을 둡니다 */
 }
 
 #image-upload {
     display: none;
 }
 
-.upload-label {
-    background-color: #540d0d;
-    color: white;
+.upload-label,
+.upload-button {
+    display: inline-block;
     padding: 20px 40px;
+    cursor: pointer;
+    font-size: 24px;
+    text-align: center;
+}
+
+.upload-label {
+    color: blue;  
+    border: 2px solid blue;  
+    background-color: white; 
+    padding: 20px 20px;  
     cursor: pointer;
     font-size: 24px;
     margin-right: 20px;
-    margin-top: 400px;
 }
 
 .upload-button {
-    background-color: #008CBA;
+    background-color: darkblue;
     color: white;
-    padding: 20px 40px;
-    cursor: pointer;
-    border: none;
-    font-size: 24px;
-    margin-top: 400px;
+    border: 2px solid blue;
 }
 
 #result {
@@ -152,3 +222,19 @@ form {
 .hidden {
     display: none;
 }
+
+@keyframes slideOutLeft {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+}
+
+.slide-out-left {
+    animation: slideOutLeft 1s forwards; /* 1초 동안 왼쪽으로 슬라이드 아웃 */
+}
+

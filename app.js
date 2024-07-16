@@ -1,27 +1,47 @@
-document.getElementById('upload-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const fileInput = document.getElementById('image-upload');
-    const file = fileInput.files[0];
-
-    if (file) {
+document.addEventListener("DOMContentLoaded", function() {
+    // 이미지 업로드 시 미리보기 표시
+    document.getElementById('image-upload').addEventListener('change', function(event) {
+        const file = event.target.files[0];
         const reader = new FileReader();
+        //이미지 로드시 공간 확보
         reader.onload = function(e) {
-            const img = new Image();
+            const img = document.getElementById('image-preview');
             img.src = e.target.result;
-            img.onload = function() {
-                // 이미지 로드 후 OpenCV.js로 처리
-                const src = cv.imread(img); // 이미지 로드
-                const dst = new cv.Mat();
-                cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY); // 그레이스케일 변환
-                cv.imshow('canvasOutput', dst); // 결과 캔버스에 출력
-                src.delete(); // 메모리 해제
-                dst.delete(); // 메모리 해제
-            };
+            img.style.display = 'block';
         };
-        reader.readAsDataURL(file);
-    } else {
-        alert('Please select an image file.');
-    }
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    });
+
+    const uploadForm = document.getElementById("upload-form");
+    //분석 시작 버튼 클릭 시  이벤트 발생
+    uploadForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+
+        const fileInput = document.getElementById('image-upload');
+        const file = fileInput.files[0];
+
+        const stepBox1 = document.querySelector(".step-box-1");
+        stepBox1.classList.add("slide-out-left");
+
+
+        const stepNumber2 = document.querySelector(".step-number2");
+        stepNumber2.style.display = "none";
+
+
+        const stepBox2 = document.querySelector(".step-box-2");
+        stepBox2.style.backgroundColor ="white";
+
+
+
+        stepBox1.addEventListener("animationend", function() {
+            stepBox1.style.display = "none";
+
+
+
+        }, { once: true });
+
+    });
 });
-
-
