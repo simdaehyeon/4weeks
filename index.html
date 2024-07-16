@@ -1,42 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4 weeks project</title>
+    <title>감정 및 피부 분석 키오스크</title>
     <link rel="stylesheet" href="style.css">
     <script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();" onerror="onOpenCvError();"></script>
-    <h1>원하시는 얼굴 사진을 <br>선택하세요</h1>
 </head>
 <body>
-    <form id="upload-form">
-        <input type="file" id="image-upload" accept="image/*">
-        <button type="submit">Upload</button>
-    </form>
-    <div id="result">
-        <canvas id="canvasOutput"></canvas>
+    <div class="container">
+        <header>
+            <h1>감정 및 피부 분석</h1>
+            <div class="steps-container">
+                
+                <div class="step-box-1">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-description">원하시는 얼굴 사진 업로드해주세요</div>
+                    </div>
+                    <form id="upload-form">
+                        <input type="file" id="image-upload" accept="image/*">
+                        <label for="image-upload" class="upload-label">이미지 업로드</label>
+                        <button type="submit" class="upload-button">분석 시작</button>
+                    </form>
+                </div>
+                 
+                <div class="step-box-2">
+                    <div class="step-header">
+                        <div class="step-number2">2</div>
+                        <div class="step-description">분석을 시작하겠습니다. 잠시만 기다려주세요</div>
+                    </div>
+                </div>
+            </div>
+         </header>
     </div>
-    <div id="status"></div>
-    
-    <!-- OpenAI API 호출 버튼과 결과 영역 추가 -->
-    <div>
-        <button id="fetchButton">지피티 응답 받기</button>
-        <p id="apiResponse"></p>
-    </div>
-
     <script src="app.js"></script>
-    <script>
-        document.getElementById('fetchButton').addEventListener('click', async () => {
-            try {
-                ///openai 경로로 HTTP GET 요청,이 요청은 서버 측에서 처리되어 OpenAI API의 응답을 반환합니다.
-                const response = await fetch('/openai');
-                const data = await response.json(); 
-                document.getElementById('apiResponse').innerText = data.message;
-            } catch (error) {
-                console.error('Error fetching API response:', error);
-                document.getElementById('apiResponse').innerText = 'Error fetching API response';
-            }
-        });
-    </script>
 </body>
 </html>

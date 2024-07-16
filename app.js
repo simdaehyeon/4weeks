@@ -1,11 +1,3 @@
-function onOpenCvReady() {
-    document.getElementById('status').innerHTML = 'ready to opencv.js.';
-}
-
-function onOpenCvError() {
-    document.getElementById('status').innerHTML = 'Failed to load OpenCV.js.';
-}
- 
 document.getElementById('upload-form').addEventListener('submit', function(event) {
     event.preventDefault();
     const fileInput = document.getElementById('image-upload');
@@ -31,3 +23,5 @@ document.getElementById('upload-form').addEventListener('submit', function(event
         alert('Please select an image file.');
     }
 });
+
+
