@@ -3,24 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>감정 및 피부 분석 키오스크</title>
+    <title>감정 및 피부 분석</title>
     <link rel="stylesheet" href="style.css">
     <script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();" onerror="onOpenCvError();"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@latest/dist/face-api.min.js"></script>
+    <script>
+        function onOpenCvReady() {
+            console.log('OpenCV.js is ready.');
+        }
+        function onOpenCvError() {
+            console.error('Failed to load OpenCV.js.');
+        }
+    </script>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>감정 및 피부 분석</h1>
-
             <h5> 원하시는 이미지의 감정 및 피부를 분석해주고 있어요</h5>
             <div class="steps-container">
-              
-                <div class="step-box-1">
+                 <div class="step-box-1">
                     <div class="step-header">
                         <div class="step-number">1</div>
                         <div class="step-description">원하시는 얼굴 사진 업로드해주세요</div>
                     </div>
-                              <div id="image-preview-container">
+                    <div id="image-preview-container">
                         <img id="image-preview" src="" alt="이미지 미리보기">
                     </div>
                     <form id="upload-form">
@@ -28,26 +36,40 @@
                         <label for="image-upload" class="upload-label">이미지 업로드</label>
                         <button type="submit" class="upload-button">분석 시작</button>
                     </form>
-          
-                </div>
-                
-                <div class="step-box-2">
+                </div> 
+                 <div class="step-box-2">
                     <div class="step-header">
                         <div class="step-number2">2</div>
                         <div class="step-number2-1">2</div>
-                        <div class="step-description">분석을 시작하겠습니다. 잠시만 기다려주세요</div>
+                        <div class="step-description">분석 단계</div>
+                       <div class="result"></div>
+                       <div class="loading-spinner" id="loading-spinner"></div>
+                        <button type ="submit" class = "see-result">결과보기</button>
+                        <button type = "submit" class = "see-ai">맞춤형 피드백 듣기</button>
+
+                        
                     </div>
                 </div>
-
-              <div class = "step-box-3">
+                <div class="step-box-3">
                     <div class="step-header">
                         <div class="step-number3">3</div>
                         <div class="step-description">분석 결과</div>
                     </div>
-              </div>
+                </div>
+            </div> 
+        </header>
+    </div>
 
+    
+        <!-- Modal -->
+    <div class="loading-popup-wrap">
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <img src="/ic_icon.png" alt="로딩이미지" class="pop-img"/>
+                <h4 class="pop-title">분석중입니다<span id="loadingDots"></span></h4>
+                <h6 class="pop-content">이미지 정밀 분석중입니다.<br>잠시만 기다려주세요!</h6>            
             </div>
-         </header>
+        </div>
     </div>
     <script src="app.js"></script>
 </body>
