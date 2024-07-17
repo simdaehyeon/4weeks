@@ -262,9 +262,8 @@ form {
 }
 
 
-
-/* 모달창 */
-.modal {
+/* 공통 모달 스타일 */
+.modal, .modal2 {
     display: none;
     position: fixed;
     z-index: 4;
@@ -273,10 +272,10 @@ form {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0, 0, 0);
     background-color: rgba(0, 0, 0, 0.4);
 }
 
+/* 로딩 모달 스타일 */
 .modal-content {
     background-color: #fefefe;
     margin: 15% auto;
@@ -287,20 +286,30 @@ form {
     text-align: center;
 }
 
+/* 결과 모달 스타일 */
+.modal2 .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 70%; /* 가로로 더 길게 설정 */
+    max-width: 800px; /* 최대 너비 설정 */
+    height: auto; /* 높이는 콘텐츠에 따라 자동 */
+    text-align: center;
+}
+
 .pop-img {
     width: 100px;
     height: auto;
 }
 
 .pop-title {
-    font-size: 24px; /* 글자 크기 키우기 */
+    font-size: 24px;
 }
 
 .pop-content {
-    font-size: 18px; /* 글자 크기 키우기 */
+    font-size: 18px;
 }
-
-
 
 .close {
     color: #aaa;
@@ -316,10 +325,8 @@ form {
     cursor: pointer;
 }
 
-
-/* 로딩 이미지 회전 */
 @keyframes rotate-loading {
-    100%{
+    100% {
         transform: rotate(360deg);
     }
 }
