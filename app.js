@@ -45,13 +45,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { once: true });
 
         const modal = document.getElementById('myModal');
+        const seeResultButton = document.querySelector('.see-result');
+        const seeAiButton = document.querySelector('.see-ai');
+
+        // 모달 창이 열리면 버튼 숨기기
         modal.style.display = 'block';
+        seeResultButton.classList.add('hidden');
+        seeAiButton.classList.add('hidden');
 
         // loadingDots 애니메이션 시작
         const loadingDots = document.getElementById('loadingDots');
         const dots = ['.', '..', '...'];
         let index = 0;
-        setInterval(() => {
+        const loadingInterval = setInterval(() => {
             loadingDots.innerText = dots[index];
             index = (index + 1) % dots.length;
         }, 500);
@@ -62,6 +68,13 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
                 displayResults(detections);
+
+                modal.style.display = 'none';
+                clearInterval(loadingInterval);
+
+                // 버튼 보이기
+                seeResultButton.classList.remove('hidden');
+                seeAiButton.classList.remove('hidden');
             } catch (error) {
                 console.error("Error detecting faces:", error);
             }
@@ -103,9 +116,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.onclick = function(event) {
-        var modal = document.getElementById('myModal');
+        const modal = document.getElementById('myModal');
         if (event.target == modal) {
             modal.style.display = 'none';
+
+            // 버튼 보이기
+            const seeResultButton = document.querySelector('.see-result');
+            const seeAiButton = document.querySelector('.see-ai');
+            seeResultButton.classList.remove('hidden');
+            seeAiButton.classList.remove('hidden');
         }
     }
 });
