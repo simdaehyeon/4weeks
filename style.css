@@ -24,7 +24,7 @@ header {
     width: 100%;
     background: linear-gradient(#8098c9, #ebcd90);
     padding: 30px 0;
-    height: 500px;
+    height: 400px;
 }
 
 header h1 {
@@ -35,7 +35,7 @@ header h1 {
 .steps-container {
     position: relative;
     width: 100%;
-    height: 600px;
+    height: 400px;
 }
 
 .step-box-1 {
@@ -49,7 +49,7 @@ header h1 {
     margin: 20px 0;
     position: absolute;
     width: 100%;
-    height: 700px;
+    height: 600px;
     clip-path: polygon(0 0, calc(100% - 300px) 0, calc(100% - 300px) 70px, 100% 70px, 100% 100%, 0 100%);
     z-index: 3;
     border: 2px solid #000;
@@ -68,7 +68,7 @@ header h1 {
     margin: 20px 0;
     position: absolute;
     width: 100%;
-    height: 700px;
+    height: 600px;
     clip-path: polygon(0 0, calc(100% - 200px) 0, calc(100% - 200px) 70px, 100% 70px, 100% 100%, 0 100%);
     z-index: 2;
     top: 50px;
@@ -89,7 +89,7 @@ header h1 {
     margin: 20px 0;
     position: absolute;
     width: 100%;
-    height: 700px;
+    height: 600px;
     clip-path: polygon(0 0, calc(100% - 100px) 0, calc(100% - 100px) 70px, 100% 70px, 100% 100%, 0 100%);
     z-index: 1;
     top: 50px;
@@ -116,6 +116,7 @@ header h1 {
     z-index: 1;
     position: absolute;
     left: 20px;
+    margin-top: 25px;
 }
 
 .step-number2 {
@@ -124,6 +125,7 @@ header h1 {
     z-index: 2;
     position: absolute;
     left: calc(100% - 210px - 30px);
+  
 }
 
 .step-number2-1 {
@@ -135,6 +137,7 @@ header h1 {
     z-index: 1;
     position: absolute;
     left: 20px;
+    margin-top: 15px;
 }
 
 .step-number3 {
@@ -143,46 +146,89 @@ header h1 {
     z-index: 3;
     position: absolute;
     left: calc(100% - 120px - 30px);
+    margin-top: 20px;
+
+}
+
+.see-result, .see-ai {
+    width: 300px;
+    height: 300px;
+    padding: 20px;
+    cursor: pointer;
+    font-size: 24px;
+    display: block;
+    position: absolute;
+    top: 300px;
+    bottom: 300px;
 }
 
 .see-result {
     color: blue;
     border: 2px solid blue;
     background-color: white;
-    padding: 20px 20px;
-    cursor: pointer;
-    font-size: 24px;
-    display: block;
-    position: absolute;
-    top: 450px;
-    left: 720px;
+    left: 540px;  
 }
 
 .see-ai {
     background-color: darkblue;
     color: white;
     border: 2px solid blue;
-    padding: 20px 20px;
-    cursor: pointer;
-    font-size: 24px;
-    margin-right: 20px;
-    position: absolute;
-    top: 450px;
-    left: 920px;
+    left: calc(720px + 300px + 20px);  
 }
 
+
 .step-description {
+    position: absolute;
     font-size: 20px;
-    margin-left: 70px;
+    margin-left: 80px;
+    margin-top: 10px;
 }
+
+
+/* 모달창 결과 */
+
+#resultContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.result-section {
+    flex: 1;
+    margin: 10px;
+}
+
+/* 결과부분 */
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.check-result {
+    position: absolute;
+    margin-left: 800px;
+    margin-top: 100px;
+    font-size: 25px;
+    animation: blink 2s infinite; /* 2초 주기로 애니메이션 반복 */
+}
+
+ /* 이미지 미리보기 박스 */
 
 #image-preview-container {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 450px;
-    margin-top: 20px;
+    height: 440px;
+    margin-top: 30px;
     border: 2px dashed #ccc;
 }
 
@@ -191,6 +237,8 @@ header h1 {
     max-height: 100%;
     display: none;
 }
+
+
 
 form {
     display: flex;
@@ -246,6 +294,11 @@ form {
     display: none;
 }
 
+
+
+
+/* 버튼 클릭시 화면 왼쪽으로 이동 */
+
 @keyframes slideOutLeft {
     from {
         opacity: 1;
@@ -256,13 +309,11 @@ form {
         transform: translateX(-100%);
     }
 }
-
 .slide-out-left {
     animation: slideOutLeft 1s forwards;
 }
 
 
-/* 공통 모달 스타일 */
 .modal, .modal2 {
     display: none;
     position: fixed;
@@ -284,18 +335,20 @@ form {
     width: 300px;
     height: 300px;
     text-align: center;
+    position: relative; /* 상대 위치 지정 추가 */
 }
 
 /* 결과 모달 스타일 */
 .modal2 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto;
+    margin: 5% auto; /* margin-top을 줄여서 상단 여백을 줄임 */
     padding: 20px;
     border: 1px solid #888;
-    width: 70%; /* 가로로 더 길게 설정 */
-    max-width: 800px; /* 최대 너비 설정 */
-    height: auto; /* 높이는 콘텐츠에 따라 자동 */
+    width: 70%;  
+    width: 1000px;  
+    height: 500px; /* 높이를 화면 높이의 80%로 설정 */
     text-align: center;
+    position: relative; /* 상대 위치 지정 추가 */
 }
 
 .pop-img {
@@ -305,26 +358,33 @@ form {
 
 .pop-title {
     font-size: 24px;
+    margin-top: 30px;
 }
 
 .pop-content {
     font-size: 18px;
 }
 
-.close {
+.close-button {
+    position: absolute; /* 절대 위치 지정 */
+    top: 10px; /* 상단에서 10px */
+    right: 10px; /* 우측에서 10px */
     color: #aaa;
-    float: right;
-    font-size: 28px;
+    font-size: 36px; /* 폰트 크기를 키움 */
     font-weight: bold;
+    cursor: pointer;
 }
 
-.close:hover,
-.close:focus {
+.close-button:hover,
+.close-button:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
 }
 
+
+
+/* 로딩 부분  */
 @keyframes rotate-loading {
     100% {
         transform: rotate(360deg);
