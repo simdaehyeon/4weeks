@@ -7,8 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh"></script>
-</head>
+ </head>
 <body>
     <div class="container">
         <header>
@@ -18,7 +17,7 @@
                 <div class="step-box-1">
                     <div class="step-header">
                         <div class="step-number">1</div>
-                        <div class="step-description">원하시는 얼굴 사진을 업로드해주세요</div>
+                        <div class="step-description">원하시는 얼굴 사진을 업로드해주세요.웹캠 사용시 실시간으로 얼굴을 분석할 수 있습니다.</div>
                     </div>
                     <div id="image-preview-container">
                         <img id="image-preview" src="" alt="이미지 미리보기">
@@ -26,9 +25,18 @@
                     <form id="upload-form">
                         <input type="file" id="image-upload" accept="image/*">
                         <label for="image-upload" class="upload-label">이미지 업로드</label>
+                        <button type ="button" id="webcam-button" class="webcam-button">웹캠 사용</button>
                         <button type="submit" class="upload-button">분석 시작</button>
                     </form>
                 </div>  
+                <!-- 웹캠  -->
+                <div id="webcam-container">
+                    <video id="webcam-video" autoplay></video>
+                    <canvas id="webcam-overlay"></canvas>
+                    <button id="close-webcam-button">X</button>
+                    <button id="gpt-analyze">분석하기</button>
+                    <div id="info"></div>
+                </div>
                 <div class="step-box-2">
                     <div class="step-header">
                         <div class="step-number2">2</div>
@@ -72,6 +80,7 @@
                 <div id="emotionResult" class="result-section"></div>
                 <canvas id="overlay" class="result-section"></canvas>
                 <div id="skinResult" class="result-section"></div>
+                <button type="button" id="retryButton" class="retry-button">다시 검사하기</button>
             </div>
         </div>
     </div>
