@@ -24,12 +24,36 @@ document.addEventListener('DOMContentLoaded', async function () {
                 console.error("웹캠 접근 오류:", err);
             });
 
+        let lastFrame = null;
+        let staticFrameCount = 0;
+        const maxStaticFrameCount = 30; // 약 1초 동안 변화가 없으면 사진으로 간주
+
         // 얼굴을 실시간으로 감지하여 경계선을 그리는 함수
         async function detectFaces() {
             if (!video.paused && !video.ended) {
                 const predictions = await blazefaceModel.estimateFaces(video, false); // 얼굴 감지 부분
                 ctx.clearRect(0, 0, canvas.width, canvas.height); // 이전 프레임 지우기
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height); // 비디오 프레임을 캔버스에 그리기
+
+                // 프레임 변화 감지
+                const currentFrame = tf.browser.fromPixels(video);
+                if (lastFrame) {
+                    const frameDiff = tf.abs(tf.sub(currentFrame, lastFrame));
+                    const frameDiffSum = tf.sum(frameDiff).arraySync();
+                    if (frameDiffSum < 1000000) { // 임계값 설정
+                        staticFrameCount++;
+                    } else {
+                        staticFrameCount = 0;
+                    }
+                    if (staticFrameCount > maxStaticFrameCount) {
+                        console.log("사진으로 간주되어 분석을 중단합니다.");
+                        requestAnimationFrame(detectFaces);
+                        return;
+                    }
+                    lastFrame.dispose();
+                    frameDiff.dispose();
+                }
+                lastFrame = currentFrame;
 
                 ctx.lineWidth = 3;
                 ctx.strokeStyle = 'green';
@@ -623,8 +647,8 @@ function startApp() {
         });
     }
 
-      // 메시지를 채팅창에 추가하는 함수
-      function addMessageToChat(sender, message) {
+    // 메시지를 채팅창에 추가하는 함수
+    function addMessageToChat(sender, message) {
         const chatMessages = document.getElementById('chat-messages');
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message');
@@ -634,7 +658,7 @@ function startApp() {
         chatMessages.scrollTop = chatMessages.scrollHeight; // 스크롤을 맨 아래로 이동
     }
 
-    // 채팅폼 이벤트 리스너
+   // 채팅폼 이벤트 리스너
     const chatForm = document.getElementById('chat-form');
     chatForm.addEventListener('submit', async function (event) {
         event.preventDefault(); // 폼 제출 기본 동작을 방지 (페이지 새로고침 방지)
@@ -647,18 +671,12 @@ function startApp() {
         // GPT API 호출
         try {
             console.log('Sending message to GPT API:', userMessage);
-
-            // 분석 결과와 사용자 메시지를 함께 전송
-            const emotionResultText = document.querySelector("#emotionResult").innerText;
-            const skinResultText = document.querySelector("#skinResult").innerText;
-            const resultsText = `${emotionResultText}\n${skinResultText}`;
-
-            const response = await fetch('/openai-chat', { // 새로운 엔드포인트로 요청 전송
+            const response = await fetch('/openai-chat', { // '/openai-chat' 엔드포인트로 POST 요청을 보냄
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ message: userMessage, resultsText }) // 메시지와 결과를 함께 전송
+                body: JSON.stringify({ message: userMessage }) // 메시지를 JSON 형식으로 변환하여 전송
             });
 
             if (response.ok) {
