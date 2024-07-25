@@ -409,8 +409,7 @@ function startApp() {
                                 const data = await response.json();
                                 console.log("Received response from GPT API:", data.message);
 
-                                const chattingContainer = document.querySelector('.chatting-container');
-                                chattingContainer.innerHTML = `<p>${data.message}</p>`;
+                                addMessageToChat("bot", data.message);
 
                             } else {
                                 console.error('GPT API request failed');
@@ -623,6 +622,56 @@ function startApp() {
             }
         });
     }
+
+      // 메시지를 채팅창에 추가하는 함수
+      function addMessageToChat(sender, message) {
+        const chatMessages = document.getElementById('chat-messages');
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message');
+        messageElement.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+        messageElement.innerText = message;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // 스크롤을 맨 아래로 이동
+    }
+
+    // 채팅폼 이벤트 리스너
+    const chatForm = document.getElementById('chat-form');
+    chatForm.addEventListener('submit', async function (event) {
+        event.preventDefault(); // 폼 제출 기본 동작을 방지 (페이지 새로고침 방지)
+        const userInput = document.getElementById('user-input'); // 입력란 요소를 가져옴
+        const userMessage = userInput.value.trim(); // 입력된 메시지를 가져와서 앞뒤 공백 제거
+        if (userMessage === '') return; // 메시지가 비어있으면 함수 종료
+        addMessageToChat('user', userMessage); // 입력된 메시지를 채팅창에 사용자 메시지로 추가
+        userInput.value = ''; // 입력란을 비움
+
+        // GPT API 호출
+        try {
+            console.log('Sending message to GPT API:', userMessage);
+
+            // 분석 결과와 사용자 메시지를 함께 전송
+            const emotionResultText = document.querySelector("#emotionResult").innerText;
+            const skinResultText = document.querySelector("#skinResult").innerText;
+            const resultsText = `${emotionResultText}\n${skinResultText}`;
+
+            const response = await fetch('/openai-chat', { // 새로운 엔드포인트로 요청 전송
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userMessage, resultsText }) // 메시지와 결과를 함께 전송
+            });
+
+            if (response.ok) {
+                const data = await response.json(); // 응답 데이터를 JSON 형식으로 파싱
+                console.log("Received response from GPT API:", data);
+                addMessageToChat('bot', data.message); // GPT 응답 메시지를 채팅창에 봇 메시지로 추가
+            } else {
+                console.error('GPT API request failed with status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error sending message to GPT API:', error);
+        }
+    });
 
     // "다시 검사하기" 버튼 클릭 시 초기 상태로 복원
     document.getElementById('retryButton').addEventListener('click', function () {

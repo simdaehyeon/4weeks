@@ -6,11 +6,10 @@ const app = express();
 const port = 3000;
 
 // OpenAI API 키 설정
-const openaiApiKey = 'sk-...'; // 실제 OpenAI API 키로 교체하세요
-const googleApiKey = 'AIza...'; // 실제 Google API 키로 교체하세요
+const openaiApiKey = 'df-df-df'; // 실제 OpenAI API 키로 교체하세요
 
 // 정적 파일 제공
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -36,7 +35,7 @@ app.post('/openai', async (req, res) => {
                 { role: "system", content: "먼저 감정에 대해서 설명하고 부정적인 감정은 최대한 긍정적이게 대답을 해줘 그리고 나이에 맞게 피부관련되서 얘기해주면 좋아 마지막에는 조언을 해줘" },
                 { role: "user", content: userMessage }
             ],
-            max_tokens: 2048, // 최대 글자수 설정
+            max_tokens: 1024, // 최대 글자수 설정
         }, {
             headers: {
                 'Authorization': `Bearer ${openaiApiKey}`,
@@ -47,24 +46,42 @@ app.post('/openai', async (req, res) => {
         const gptResponseText = gptResponse.data.choices[0].message.content;
         console.log("OpenAI API 응답:", gptResponseText);
 
-        // Google Text-to-Speech API 호출
-        const ttsResponse = await axios.post(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${googleApiKey}`, {
-            input: { text: gptResponseText },
-            voice: { languageCode: 'ko-KR', ssmlGender: 'FEMALE' },
-            audioConfig: { audioEncoding: 'MP3' }
+        // 클라이언트에 JSON 형식으로 응답을 반환
+        res.json({ message: gptResponseText });
+    } catch (error) {
+        console.error("Error calling OpenAI API:", error.message);
+        res.status(500).send("Error calling OpenAI API");
+    }
+});
+
+app.post('/openai-chat', async (req, res) => {
+    try {
+        const { message, resultsText } = req.body;
+        if (!message || !resultsText) {
+            return res.status(400).json({ error: 'Message or resultsText is missing' });
+        }
+
+        const userMessage = `사용자 메시지: ${message}\n\n얼굴 분석 결과: ${resultsText}`;
+
+        const gptResponse = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: "gpt-3.5-turbo",
+            messages: [
+                { role: "system", content: "사용자가 얼굴 분석 결과에 대해 문의한 내용을 바탕으로 조언을 해줘" },
+                { role: "user", content: userMessage }
+            ],
+            max_tokens: 2048, // 최대 글자수 설정
+        }, {
+            headers: {
+                'Authorization': `Bearer ${openaiApiKey}`,
+                'Content-Type': 'application/json'
+            }
         });
 
-        const audioContent = ttsResponse.data.audioContent;
-        if (!audioContent) {
-            throw new Error('Google TTS API 응답에 audioContent가 없습니다.');
-        }
-        console.log("Google Text-to-Speech API 응답 받음");
-
-        // 클라이언트에 JSON 형식으로 응답을 반환
-        res.json({ message: gptResponseText, audioContent });
+        const gptResponseText = gptResponse.data.choices[0].message.content;
+        res.json({ message: gptResponseText });
     } catch (error) {
-        console.error("Error calling OpenAI API or Google TTS API:", error.message);
-        res.status(500).send("Error calling OpenAI API or Google TTS API");
+        console.error('Error calling OpenAI API:', error.message);
+        res.status(500).send('Error calling OpenAI API');
     }
 });
 
