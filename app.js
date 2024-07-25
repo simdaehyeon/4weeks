@@ -1,8 +1,3 @@
-let blazefaceModel;
-let ageModel;
-let genderModel;
-let emotionModel;
-
 document.addEventListener('DOMContentLoaded', async function () {
     console.log("DOMContentLoaded event fired");
 
@@ -11,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     ageModel = await tf.loadLayersModel('/web3_model/age_model/model.json'); // 나이 예측 모델 로드
     genderModel = await tf.loadLayersModel('/web3_model/gender_model/model.json'); // 성별 예측 모델 로드
     emotionModel = await tf.loadLayersModel('/tfjs_model/model.json'); // 감정 예측 모델 로드
+    skinLesionModel = await tf.loadLayersModel('Skin-Lesion-Analyzer/final_model_kaggle_version1/model.json'); // 피부 병변 분석 모델 로드
 
     // 웹캠 버튼 클릭 시 이벤트
     document.getElementById('webcam-button').addEventListener('click', async function() {
@@ -22,7 +18,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         // 웹캠 스트림 가져오기
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => {
-                // 웹캠 스트림을 비디오 요소에 설정
                 video.srcObject = stream;
             })
             .catch(err => {
@@ -39,8 +34,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 ctx.lineWidth = 3;
                 ctx.strokeStyle = 'green';
 
-                  // 감정 라벨 정의
-                  const emotions = ['화남', '경멸', '무서움', '행복', '슬픔', '놀람', '중립'];
+                // 감정 라벨 정의
+                const emotions = ['화남', '경멸', '무서움', '행복', '슬픔', '놀람', '중립'];
 
                 // 경계선 그리기 및 나이와 성별 예측
                 for (const prediction of predictions) {
@@ -65,13 +60,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                         .toFloat()
                         .div(tf.scalar(255.0))
                         .expandDims(0)
-                        .mean(3)  
-                        .expandDims(3);  
+                        .mean(3)
+                        .expandDims(3);
 
                     // 나이 및 성별 예측
                     const agePrediction = ageModel.predict(faceTensor);
                     const genderPrediction = genderModel.predict(faceTensor);
-                    
+
                     // 나이 예측 (모델의 출력 값을 올바르게 해석)
                     const agePredictionArray = agePrediction.arraySync()[0];
                     const age = agePredictionArray.reduce((acc, prob, index) => acc + prob * (index * 10), 0); // 각 범주에 10을 곱함
@@ -87,13 +82,38 @@ document.addEventListener('DOMContentLoaded', async function () {
                     const maxEmotionIndex = emotionPrediction.indexOf(Math.max(...emotionPrediction));
                     const emotion = emotions[maxEmotionIndex]; // 가장 높은 확률의 감정
 
+                    // 피부 병변 예측
+                    const skinLesionTensor = tf.browser.fromPixels(faceCanvas)
+                        .resizeNearestNeighbor([224, 224])
+                        .toFloat()
+                        .div(tf.scalar(255.0))
+                        .expandDims();
+                    const skinLesionPrediction = skinLesionModel.predict(skinLesionTensor);
+                    const skinLesionResult = await skinLesionPrediction.arraySync();
+
+                    // 피부 병변 확률 값 추출
+                    const skinLesionProbabilities = skinLesionResult[0];
+
+                    // 피부 병변 확률 출력
+                    const skinLesionInfo = `종양일 확률: ${(skinLesionProbabilities[2] * 100).toFixed(2)}%`;
+
+                    // 여드름 감지
+                    const acneDetectionResult = detectAcne(faceCanvas);
+
+                    // 주름 감지
+                    const wrinkleDetectionResult = detectWrinkles(faceCanvas);
+
                     ctx.font = '18px Arial';
                     ctx.fillStyle = 'Yellow';
-                    
-                    ctx.fillText(`나이: ${Math.round(age)}`, right + 5, y);  
-                    ctx.fillText(`성별: ${gender}`, right + 5, y + 20);  
-                    ctx.fillText(`감정: ${emotion}`, right + 5, y + 40); 
-                    console.log(`나이 예측: ${Math.round(age)}, 성별 예측: ${gender}, 감정 예측: ${emotion}`);
+
+                    ctx.fillText(`나이: ${Math.round(age)}`, right + 5, y);
+                    ctx.fillText(`성별: ${gender}`, right + 5, y + 20);
+                    ctx.fillText(`감정: ${emotion}`, right + 5, y + 40);
+                    ctx.fillText(skinLesionInfo, right + 5, y + 60);
+                    ctx.fillText(acneDetectionResult, right + 5, y + 80);
+                    ctx.fillText(wrinkleDetectionResult, right + 5, y + 100);
+
+                    console.log(`나이 예측: ${Math.round(age)}, 성별 예측: ${gender}, 감정 예측: ${emotion}, ${skinLesionInfo}, ${acneDetectionResult}, ${wrinkleDetectionResult}`);
                 }
             }
             requestAnimationFrame(detectFaces);
@@ -120,7 +140,132 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 });
 
+// 여드름 감지 함수
+function detectAcne(faceCanvas) {
+    const faceImg = cv.imread(faceCanvas);
+    const gray = new cv.Mat();
+    cv.cvtColor(faceImg, gray, cv.COLOR_RGBA2GRAY);
+
+    // 이미지 해상도 조정
+    const highRes = new cv.Mat();
+    cv.resize(gray, highRes, new cv.Size(640, 640));
+
+    const th3 = new cv.Mat();
+    cv.adaptiveThreshold(highRes, th3, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 15, 5);
+    const dilated = new cv.Mat();
+    const kernel = cv.Mat.ones(1, 1, cv.CV_8UC1);
+    cv.dilate(th3, dilated, kernel, new cv.Point(-1, -1), 2);
+
+    const contours = new cv.MatVector();
+    const hierarchy = new cv.Mat();
+    cv.findContours(dilated, contours, hierarchy, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE);
+
+    let acneCount = 0;
+    for (let i = 0; i < contours.size(); ++i) {
+        const cnt = contours.get(i);
+        const area = cv.contourArea(cnt);
+        
+        // 여드름 크기의 범위 및 모양 기준 조정
+        if (area >= 50 && area <= 300) { // 더 엄격한 크기 범위
+            const rect = cv.boundingRect(cnt);
+            const aspectRatio = rect.width / rect.height;
+            
+            // 모양 기준 추가 (가로 세로 비율이 일정 범위 내에 있는지 확인)
+            if (aspectRatio > 0.75 && aspectRatio < 1.25) {
+                acneCount++;
+            }
+        }
+        cnt.delete();
+    }
+
+    contours.delete();
+    hierarchy.delete();
+    gray.delete();
+    th3.delete();
+    dilated.delete();
+    kernel.delete();
+    faceImg.delete();
+    
+    return `여드름 감지 개수: ${acneCount}`;
+}
+
+function detectWrinkles(faceCanvas) {
+    const faceImg = cv.imread(faceCanvas);
+
+    // HSV 색상 공간으로 변환
+    const hsv = new cv.Mat();
+    cv.cvtColor(faceImg, hsv, cv.COLOR_RGBA2RGB);
+    cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
+
+    // 피부 색상 범위 설정 (Hue, Saturation, Value 범위)
+    const lowerSkin = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [0, 20, 70, 0]);
+    const upperSkin = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [20, 255, 255, 255]);
+
+    // 피부 영역 마스킹
+    const skinMask = new cv.Mat();
+    cv.inRange(hsv, lowerSkin, upperSkin, skinMask);
+
+    // 가우시안 블러 적용
+    const blurred = new cv.Mat();
+    cv.GaussianBlur(skinMask, blurred, new cv.Size(5, 5), 1.5);
+
+    // 캐니 엣지 감지기 사용
+    const edges = new cv.Mat();
+    cv.Canny(blurred, edges, 50, 150);
+
+    const contours = new cv.MatVector();
+    const hierarchy = new cv.Mat();
+    cv.findContours(edges, contours, hierarchy, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE);
+
+    let wrinkleCount = 0;
+    for (let i = 0; i < contours.size(); ++i) {
+        const cnt = contours.get(i);
+        const area = cv.contourArea(cnt);
+
+        // 주름 크기 및 모양 기준 조정
+        if (area >= 30 && area <= 200) { // 주름의 크기 범위 설정
+            const rect = cv.boundingRect(cnt);
+            const aspectRatio = rect.width / rect.height;
+
+            // 모양 기준 추가 (가로 세로 비율이 일정 범위 내에 있는지 확인)
+            if (aspectRatio > 0.2 && aspectRatio < 5) {
+                wrinkleCount++;
+                // 주름 라인을 연한 초록색으로 그리기
+                const points = cv.matFromArray(4, 1, cv.CV_32SC2, [
+                    rect.x, rect.y,
+                    rect.x + rect.width, rect.y,
+                    rect.x + rect.width, rect.y + rect.height,
+                    rect.x, rect.y + rect.height
+                ]);
+                const vectorOfPoints = new cv.MatVector();
+                vectorOfPoints.push_back(points);
+                const color = new cv.Scalar(144, 238, 144, 255); // 연한 초록색
+                cv.polylines(faceImg, vectorOfPoints, true, color, 2);
+                points.delete();
+                vectorOfPoints.delete();
+            }
+        }
+        cnt.delete();
+    }
+
+    contours.delete();
+    hierarchy.delete();
+    hsv.delete();
+    blurred.delete();
+    edges.delete();
+    skinMask.delete();
+    lowerSkin.delete();
+    upperSkin.delete();
+
+    cv.imshow(faceCanvas, faceImg); // 주름이 그려진 이미지를 캔버스에 출력
+    faceImg.delete();
+
+    return `주름 감지 개수: ${wrinkleCount}`;
+}
+
 function startApp() {
+    let emotionResults, ageGenderResults, skinLesionResults, acneResults, wrinkleResults;
+
     // 이미지 업로드 시 미리보기 표시 및 캔버스에 그리기
     document.getElementById('image-upload').addEventListener('change', function (event) {
         const file = event.target.files[0];
@@ -186,10 +331,43 @@ function startApp() {
                     displayNoFaceDetected();
                 } else {
                     // 감정 분석 수행
-                    const emotionResults = await analyzeEmotions(validPredictions, img);
+                    emotionResults = await analyzeEmotions(validPredictions, img);
 
                     // 나이 및 성별 예측 수행
-                    const ageGenderResults = await analyzeAgeGender(validPredictions, img);
+                    ageGenderResults = await analyzeAgeGender(validPredictions, img);
+
+                    // 피부 병변 예측 수행
+                    skinLesionResults = await analyzeSkinLesions(validPredictions, img);
+
+                    // 여드름 감지 수행
+                    acneResults = validPredictions.map(prediction => {
+                        const { topLeft, bottomRight } = prediction;
+                        const width = bottomRight[0] - topLeft[0];
+                        const height = bottomRight[1] - topLeft[1];
+
+                        const faceCanvas = document.createElement('canvas');
+                        faceCanvas.width = width;
+                        faceCanvas.height = height;
+                        const ctx = faceCanvas.getContext('2d');
+                        ctx.drawImage(img, topLeft[0], topLeft[1], width, height, 0, 0, width, height);
+
+                        return detectAcne(faceCanvas);
+                    });
+
+                    // 주름 감지 수행
+                    wrinkleResults = validPredictions.map(prediction => {
+                        const { topLeft, bottomRight } = prediction;
+                        const width = bottomRight[0] - topLeft[0];
+                        const height = bottomRight[1] - topLeft[1];
+
+                        const faceCanvas = document.createElement('canvas');
+                        faceCanvas.width = width;
+                        faceCanvas.height = height;
+                        const ctx = faceCanvas.getContext('2d');
+                        ctx.drawImage(img, topLeft[0], topLeft[1], width, height, 0, 0, width, height);
+
+                        return detectWrinkles(faceCanvas);
+                    });
 
                     // 결과 확인 버튼 보이기
                     const seeResultButton = document.querySelector('.see-result');
@@ -199,7 +377,47 @@ function startApp() {
 
                     // 결과 확인 버튼 클릭 시 결과 모달에 결과 표시
                     seeResultButton.addEventListener('click', function () {
-                        displayResults(validPredictions, emotionResults, ageGenderResults);
+                        displayResults(validPredictions, emotionResults, ageGenderResults, skinLesionResults, acneResults, wrinkleResults);
+                    });
+
+                    // GPT API를 통해 분석 결과 전송
+                    seeaiButton.addEventListener('click', async function () {
+                        const stepBox2 = document.querySelector('.step-box-2');
+                        stepBox2.classList.add('slide-out-left');
+
+                        stepBox2.addEventListener('animationend', function() {
+                            stepBox2.style.display = 'none';
+                            console.log("step-box-2 hidden");
+                        }, { once: true });
+
+                        const emotionResultText = document.querySelector("#emotionResult").innerText;
+                        const skinResultText = document.querySelector("#skinResult").innerText;
+                        const resultsText = `${emotionResultText}\n${skinResultText}`;
+
+                        console.log("Sending results to GPT API:", resultsText);
+
+                        try {
+                            const response = await fetch('/openai', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ resultsText })
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                console.log("Received response from GPT API:", data.message);
+
+                                const chattingContainer = document.querySelector('.chatting-container');
+                                chattingContainer.innerHTML = `<p>${data.message}</p>`;
+
+                            } else {
+                                console.error('GPT API request failed');
+                            }
+                        } catch (error) {
+                            console.error('Error sending results to GPT API:', error);
+                        }
                     });
                 }
             } catch (error) {
@@ -265,6 +483,7 @@ function startApp() {
 
         return emotionResults;
     }
+
     async function analyzeAgeGender(predictions, img) {
         const ageGenderResults = [];
     
@@ -306,8 +525,39 @@ function startApp() {
         return ageGenderResults;
     }
 
+    // 피부 병변 분석 수행 함수
+    async function analyzeSkinLesions(predictions, img) {
+        const skinLesionResults = [];
+
+        for (let prediction of predictions) {
+            const { topLeft, bottomRight } = prediction;
+            const width = bottomRight[0] - topLeft[0];
+            const height = bottomRight[1] - topLeft[1];
+
+            // 얼굴 영역 자르기
+            const faceCanvas = document.createElement('canvas');
+            faceCanvas.width = width;
+            faceCanvas.height = height;
+            const ctx = faceCanvas.getContext('2d');
+            ctx.drawImage(img, topLeft[0], topLeft[1], width, height, 0, 0, width, height);
+
+            const faceTensor = tf.browser.fromPixels(faceCanvas)
+                .resizeNearestNeighbor([224, 224])
+                .toFloat()
+                .div(tf.scalar(255.0))
+                .expandDims();
+
+            // 피부 병변 예측
+            const skinLesionPrediction = await skinLesionModel.predict(faceTensor);
+            const skinLesionResult = await skinLesionPrediction.array();
+            skinLesionResults.push(skinLesionResult[0]); // 결과 배열의 첫 번째 요소
+        }
+
+        return skinLesionResults;
+    }
+
     // 얼굴 감지 및 감정 분석 결과 표시 함수
-    function displayResults(facePredictions, emotionPredictions, ageGenderResults) {
+    function displayResults(facePredictions, emotionPredictions, ageGenderResults, skinLesionResults, acneResults, wrinkleResults) {
         console.log("displayResults function called");
         const emotionResult = document.querySelector("#emotionResult");
         emotionResult.innerHTML = '';
@@ -339,12 +589,12 @@ function startApp() {
                 const sortedEmotions = Array.from(emotionPrediction)
                     .map((score, i) => ({ emotion: emotions[i], score }))
                     .sort((a, b) => b.score - a.score)
-                    .slice(0, 3); // 상위 3개 감정만 추출
+                    .slice(0, 1); // 상위 1개 감정만 추출
 
                 emotionResult.innerHTML += `얼굴 ${index + 1}:
                     <br>감지 확률: ${(probability * 100).toFixed(2)}%
                     <br>해당 이미지는 얼굴을 포함하고 있습니다.
-                    <br>상위 3개 감정:
+                    <br>상위 감정:
                     <ul>
                         ${sortedEmotions.map(e => `<li>${e.emotion}: ${(e.score * 100).toFixed(2)}%</li>`).join('')}
                     </ul>
@@ -353,9 +603,22 @@ function startApp() {
                 const ageGenderPrediction = ageGenderResults[index];
                 const genderText = ageGenderPrediction.gender < 0.5 ? '남성' : '여성';
 
+                // 피부 병변 결과 처리
+                const skinLesionPrediction = skinLesionResults[index];
+                const skinLesionInfo = `종양 의심 확률: ${(skinLesionPrediction[2] * 100).toFixed(2)}%`;
+
+                // 여드름 감지 결과
+                const acneInfo = acneResults[index];
+
+                // 주름 감지 결과
+                const wrinkleInfo = wrinkleResults[index];
+
                 skinResult.innerHTML += `얼굴 ${index + 1}:
-                    <br>예측 나이: ${ageGenderPrediction.age}
-                    <br>예측 성별: ${genderText}
+                    <br>나이: ${ageGenderPrediction.age}
+                    <br>성별: ${genderText}
+                    <br>${skinLesionInfo}
+                    <br>${acneInfo}
+                    <br>${wrinkleInfo}
                     <br><br>`;
             }
         });
