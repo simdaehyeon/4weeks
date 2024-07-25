@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>감정 및 피부 분석</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dlib/19.21/dlib.js"></script>
+    <script src="opencv.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
+     
  </head>
 <body>
     <div class="container">
@@ -14,7 +17,7 @@
             <h1>감정 및 피부 분석</h1>
             <h5>원하시는 이미지의 감정 및 피부를 분석해드리고 있어요</h5>
             <div class="steps-container">
-                <div class="step-box-1">
+                 <!-- <div class="step-box-1">
                     <div class="step-header">
                         <div class="step-number">1</div>
                         <div class="step-description">원하시는 얼굴 사진을 업로드해주세요.웹캠 사용시 실시간으로 얼굴을 분석할 수 있습니다.</div>
@@ -30,7 +33,7 @@
                     </form>
                 </div>  
                 <!-- 웹캠  -->
-                <div id="webcam-container">
+                <!-- <div id="webcam-container">
                     <video id="webcam-video" autoplay></video>
                     <canvas id="webcam-overlay"></canvas>
                     <button id="close-webcam-button">X</button>
@@ -49,11 +52,14 @@
                             <button type="button" class="see-ai hidden">맞춤형 피드백 듣기</button>
                         </form>
                     </div>
-                </div>
+                </div> --> -->
                 <div class="step-box-3">
                     <div class="step-header">
                         <div class="step-number3">3</div>
                         <div class="step-description">분석 결과</div>
+                    <div class="chatting-container">
+                        <div class = result-skin>감정 및 피부 분석 결과</div>
+                        </div>
                     </div>
                 </div>
             </div>

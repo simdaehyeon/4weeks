@@ -51,7 +51,6 @@ struct acl_indirect_gemm_resource_t : public resource_t {
                                     acp.act_info,
                                     acp.fast_math,
                                     1,
-                                    {},
                                     acp.weights_info));
         // clang-format on
 
@@ -81,12 +80,13 @@ struct acl_indirect_gemm_convolution_fwd_t : public primitive_t {
 
         status_t init(engine_t *engine) {
             using namespace data_type;
+            using smask_t = primitive_attr_t::skip_mask_t;
+
             const bool is_fp16_ok = expect_data_types(f16, f16, f16, f16, undef)
-                    && attr()->has_default_values(
-                            primitive_attr_t::skip_mask_t::post_ops, f16);
+                    && attr()->has_default_values(smask_t::post_ops, f16);
             const bool is_fp32_ok = expect_data_types(f32, f32, f32, f32, undef)
                     && attr()->has_default_values(
-                            primitive_attr_t::skip_mask_t::post_ops, f32);
+                            smask_t::post_ops | smask_t::fpmath_mode, f32);
             bool ok = is_fwd()
                     && set_default_alg_kind(alg_kind::convolution_direct)
                     && utils::one_of(true, is_fp16_ok, is_fp32_ok)

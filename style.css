@@ -455,3 +455,15 @@ form {
     animation: rotate-loading 3s linear infinite;
     transform-origin: 50% 50%;
 }
+
+.chatting-container {
+    width: 1500px;
+    height: 400px;
+    background-color: white;
+    border: 1px solid #000000;  
+    position: absolute;
+    margin-left: 350px;
+    margin-top: 500px;
+    border-radius: 5%;
+    border-width: 3px;
+}
