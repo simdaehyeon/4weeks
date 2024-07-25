@@ -455,15 +455,69 @@ form {
     animation: rotate-loading 3s linear infinite;
     transform-origin: 50% 50%;
 }
-
 .chatting-container {
-    width: 1500px;
-    height: 400px;
+    width: 1400px;
+    height: 500px;
     background-color: white;
     border: 1px solid #000000;  
     position: absolute;
-    margin-left: 350px;
+    margin-left: 250px;
     margin-top: 500px;
     border-radius: 5%;
     border-width: 3px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+#chat-form {
+    display: flex;
+    border-top: 1px solid #ccc;
+    background-color: #f9f9f9;
+    padding: 10px;
+}
+
+#user-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#chat-form button {
+    padding: 10px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 5px;
+}
+
+.chat-message {
+    margin: 5px 0;
+    padding: 5px 10px; /* 패딩을 작게 조정하여 글자 크기에 맞춤 */
+    border-radius: 5px;
+    display: inline-block; /* 글자 크기에 맞게 조정 */
+    max-width: 60%;
+    word-wrap: break-word;
+    clear: both; /* float 해제를 위해 추가 */
+}
+
+.user-message {
+    background-color: #e1ffc7;
+    text-align: right;
+    float: right; /* 오른쪽 벽에 붙이기 */
+}
+
+.bot-message {
+    background-color: #f1f1f1;
+    text-align: left;
+    float: left; /* 왼쪽 벽에 붙이기 */
 }
