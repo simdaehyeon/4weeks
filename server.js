@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 
 // OpenAI API 키 설정
-const openaiApiKey =' sdsdsd'; // 실제 OpenAI API 키로 교체하세요
+const openaiApiKey =' 23-23 -23 '; // 실제 OpenAI API 키로 교체하세요
 
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname)));
