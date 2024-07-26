@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 
 // OpenAI API 키 설정
-const openaiApiKey = ' ㅇㄹ-ㅇㄹ - ㅇㄹ'; // 실제 OpenAI API 키로 교체하세요
+const openaiApiKey =' sdsdsd'; // 실제 OpenAI API 키로 교체하세요
 
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname)));
@@ -26,7 +26,7 @@ app.post('/openai', async (req, res) => {
             throw new Error('resultsText is undefined');
         }
 
-        const userMessage = `얼굴 분석 결과는 다음과 같습니다:\n\n${resultsText}\n\n이 결과를 바탕으로 조언 부탁해줘 처음에는 "얼굴 분석 결과를 확인하고 조언을 드리겠습니다. 하나의 사진으로만 분석을 하여 정확한 판단을 내릴 수 없지만, 일반적인 조언을 드리겠습니다." 이 멘트 고정적으로 보여줘`;
+        const userMessage = `얼굴 분석 결과는 다음과 같습니다:\n\n${resultsText}\n\n이 결과를 바탕으로 조언 부탁해줘 처음에는 "얼굴 분석 결과를 확인하고 조언을 드리겠습니다. 하나의 사진으로만 분석을 하여 정확한 판단을 내릴 수 없지만, 일반적인 조언을 드리겠습니다." 이 멘트 고정적으로 보여줘, 그리고 마지막에 이모티콘 넣어줘`;
 
         // OpenAI API에 POST 요청을 보냄
         const gptResponse = await axios.post('https://api.openai.com/v1/chat/completions', {
@@ -61,12 +61,12 @@ app.post('/openai-chat', async (req, res) => {
             return res.status(400).json({ error: 'Message or resultsText is missing' });
         }
 
-        const userMessage = `사용자 메시지: ${message}\n\n얼굴 분석 결과: ${resultsText}`;
+        const userMessage = `사용자 메시지: ${message}\n\n얼굴 분석 결과: ${resultsText} 말을 할때마다 뒤에다 이모티콘 넣어줘`;
 
         const gptResponse = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-3.5-turbo",
             messages: [
-                { role: "system", content: "사용자가 얼굴 분석 결과에 대해 문의한 내용을 바탕으로 조언을 해줘" },
+                { role: "system", content: "사용자가 질문하면 무조건 상냥하게, 마지막에는 이모티콘 붙여야해. 넌 긍정에너지가 넘치는 사람이야." },
                 { role: "user", content: userMessage }
             ],
             max_tokens: 2048, // 최대 글자수 설정

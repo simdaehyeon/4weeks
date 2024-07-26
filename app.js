@@ -8,12 +8,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     emotionModel = await tf.loadLayersModel('/tfjs_model/model.json'); // 감정 예측 모델 로드
     skinLesionModel = await tf.loadLayersModel('Skin-Lesion-Analyzer/final_model_kaggle_version1/model.json'); // 피부 병변 분석 모델 로드
 
+    let analysisResults = []; // 분석 결과 저장
+    const video = document.getElementById('webcam-video');
+
     // 웹캠 버튼 클릭 시 이벤트
     document.getElementById('webcam-button').addEventListener('click', async function() {
         document.getElementById('webcam-container').style.display = 'block';
-        const video = document.getElementById('webcam-video');
         const canvas = document.getElementById('webcam-overlay');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
         // 웹캠 스트림 가져오기
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -61,6 +63,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 // 감정 라벨 정의
                 const emotions = ['화남', '경멸', '무서움', '행복', '슬픔', '놀람', '중립'];
 
+                analysisResults = []; // 초기화
+
                 // 경계선 그리기 및 나이와 성별 예측
                 for (const prediction of predictions) {
                     const [x, y] = prediction.topLeft;
@@ -76,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     const faceCanvas = document.createElement('canvas');
                     faceCanvas.width = width;
                     faceCanvas.height = height;
-                    const faceCtx = faceCanvas.getContext('2d');
+                    const faceCtx = faceCanvas.getContext('2d', { willReadFrequently: true });
                     faceCtx.drawImage(video, x, y, width, height, 0, 0, width, height);
 
                     const faceTensor = tf.browser.fromPixels(faceCanvas)
@@ -117,8 +121,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                     // 피부 병변 확률 값 추출
                     const skinLesionProbabilities = skinLesionResult[0];
-
-                    // 피부 병변 확률 출력
                     const skinLesionInfo = `종양일 확률: ${(skinLesionProbabilities[2] * 100).toFixed(2)}%`;
 
                     // 여드름 감지
@@ -126,6 +128,16 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                     // 주름 감지
                     const wrinkleDetectionResult = detectWrinkles(faceCanvas);
+
+                    // 결과 저장
+                    analysisResults.push({
+                        age: Math.round(age),
+                        gender: gender,
+                        emotion: emotion,
+                        skinLesionInfo: skinLesionInfo,
+                        acne: acneDetectionResult,
+                        wrinkles: wrinkleDetectionResult
+                    });
 
                     ctx.font = '18px Arial';
                     ctx.fillStyle = 'Yellow';
@@ -150,10 +162,73 @@ document.addEventListener('DOMContentLoaded', async function () {
             canvas.height = video.videoHeight;
             detectFaces();
         });
+
+        // "분석하기" 버튼 클릭 이벤트
+        document.getElementById('gpt-analyze').addEventListener('click', async function() {
+            const stepBox1 = document.querySelector(".step-box-1");
+            stepBox1.style.display = "none";
+             const stepBox2 = document.querySelector(".step-box-2");
+            stepBox2.style.display = "none";
+ 
+            // 웹캠 스트림 정지
+            let stream = video.srcObject;
+            if (stream) {
+                let tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
+            document.getElementById('webcam-container').style.display = 'none';
+
+            // "분석 중입니다" 메시지 추가
+            const chatMessages = document.getElementById('chat-messages');
+            const loadingMessage = document.createElement('div');
+            loadingMessage.classList.add('chat-message', 'bot-message');
+            loadingMessage.innerText = '분석 중입니다. 잠시만 기다려주세요';
+            chatMessages.appendChild(loadingMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // 스크롤을 맨 아래로 이동
+
+            // "분석 중입니다" 애니메이션 추가
+            const loadingDots = document.createElement('span');
+            loadingMessage.appendChild(loadingDots);
+            const dots = ['.', '..', '...'];
+            let index = 0;
+            const loadingInterval = setInterval(() => {
+                loadingDots.innerText = dots[index];
+                index = (index + 1) % dots.length;
+            }, 500);
+
+            const resultsText = analysisResults.map(result => {
+                return `나이: ${result.age}, 성별: ${result.gender}, 감정: ${result.emotion}, ${result.skinLesionInfo}, ${result.acne}, ${result.wrinkles}`;
+            }).join('\n');
+            
+            try {
+                const response = await fetch('/openai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ resultsText })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Received response from GPT API:", data.message);
+
+                    // "분석 중입니다" 메시지를 결과로 교체
+                    clearInterval(loadingInterval);
+                    loadingMessage.innerText = data.message;
+                } else {
+                    console.error('GPT API request failed');
+                }
+            } catch (error) {
+                console.error('Error sending results to GPT API:', error);
+            } finally {
+                document.querySelector(".step-box-3").style.display = "block"; // step-box-3 표시
+            }
+        });
     });
 
     document.getElementById('close-webcam-button').addEventListener('click', function() {
-        let video = document.getElementById('webcam-video');
         let stream = video.srcObject;
         if (stream) {
             let tracks = stream.getTracks();
@@ -420,6 +495,24 @@ function startApp() {
 
                         console.log("Sending results to GPT API:", resultsText);
 
+                        // "분석 중입니다" 메시지 추가
+                        const chatMessages = document.getElementById('chat-messages');
+                        const loadingMessage = document.createElement('div');
+                        loadingMessage.classList.add('chat-message', 'bot-message');
+                        loadingMessage.innerText = '분석 중입니다. 잠시만 기다려주세요';
+                        chatMessages.appendChild(loadingMessage);
+                        chatMessages.scrollTop = chatMessages.scrollHeight; // 스크롤을 맨 아래로 이동
+
+                        // "분석 중입니다" 애니메이션 추가
+                        const loadingDots = document.createElement('span');
+                        loadingMessage.appendChild(loadingDots);
+                        const dots = ['.', '..', '...'];
+                        let index = 0;
+                        const loadingInterval = setInterval(() => {
+                            loadingDots.innerText = dots[index];
+                            index = (index + 1) % dots.length;
+                        }, 500);
+
                         try {
                             const response = await fetch('/openai', {
                                 method: 'POST',
@@ -433,13 +526,16 @@ function startApp() {
                                 const data = await response.json();
                                 console.log("Received response from GPT API:", data.message);
 
-                                addMessageToChat("bot", data.message);
-
+                                // "분석 중입니다" 메시지를 결과로 교체
+                                clearInterval(loadingInterval);
+                                loadingMessage.innerText = data.message;
                             } else {
                                 console.error('GPT API request failed');
                             }
                         } catch (error) {
                             console.error('Error sending results to GPT API:', error);
+                        } finally {
+                            document.querySelector(".step-box-3").style.display = "block"; // step-box-3 표시
                         }
                     });
                 }
@@ -647,8 +743,8 @@ function startApp() {
         });
     }
 
-       // 메시지를 채팅창에 추가하는 함수
-       function addMessageToChat(sender, message) {
+    // 메시지를 채팅창에 추가하는 함수
+    function addMessageToChat(sender, message) {
         const chatMessages = document.getElementById('chat-messages');
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message');
@@ -687,8 +783,7 @@ function startApp() {
 
             if (response.ok) {
                 const data = await response.json(); // 응답 데이터를 JSON 형식으로 파싱
-                console.log("Received response from GPT API:", data);
-                addMessageToChat('bot', data.message); // GPT 응답 메시지를 채팅창에 봇 메시지로 추가
+                 addMessageToChat('bot', data.message); // GPT 응답 메시지를 채팅창에 봇 메시지로 추가
             } else {
                 console.error('GPT API request failed with status:', response.status);
             }
