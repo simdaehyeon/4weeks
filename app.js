@@ -25,38 +25,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             .catch(err => {
                 console.error("웹캠 접근 오류:", err);
             });
-
-        let lastFrame = null;
-        let staticFrameCount = 0;
-        const maxStaticFrameCount = 30; // 약 1초 동안 변화가 없으면 사진으로 간주
-
+ 
         // 얼굴을 실시간으로 감지하여 경계선을 그리는 함수
         async function detectFaces() {
             if (!video.paused && !video.ended) {
                 const predictions = await blazefaceModel.estimateFaces(video, false); // 얼굴 감지 부분
                 ctx.clearRect(0, 0, canvas.width, canvas.height); // 이전 프레임 지우기
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height); // 비디오 프레임을 캔버스에 그리기
-
-                // 프레임 변화 감지
-                const currentFrame = tf.browser.fromPixels(video);
-                if (lastFrame) {
-                    const frameDiff = tf.abs(tf.sub(currentFrame, lastFrame));
-                    const frameDiffSum = tf.sum(frameDiff).arraySync();
-                    if (frameDiffSum < 1000000) { // 임계값 설정
-                        staticFrameCount++;
-                    } else {
-                        staticFrameCount = 0;
-                    }
-                    if (staticFrameCount > maxStaticFrameCount) {
-                        console.log("사진으로 간주되어 분석을 중단합니다.");
-                        requestAnimationFrame(detectFaces);
-                        return;
-                    }
-                    lastFrame.dispose();
-                    frameDiff.dispose();
-                }
-                lastFrame = currentFrame;
-
                 ctx.lineWidth = 3;
                 ctx.strokeStyle = 'green';
 
@@ -792,25 +767,30 @@ function startApp() {
         }
     });
 
-    // "다시 검사하기" 버튼 클릭 시 초기 상태로 복원
-    document.getElementById('retryButton').addEventListener('click', function () {
-        console.log("Retry button clicked");
-        const resultModal = document.getElementById('resultModal');
-        resultModal.style.display = 'none';
+ // "다시 검사하기" 버튼 클릭 시 초기 상태로 복원
+document.getElementById('retryButton').addEventListener('click', function () {
+    console.log("Retry button clicked");
 
-        const stepBox1 = document.querySelector(".step-box-1");
-        stepBox1.style.display = 'block';
-        stepBox1.classList.remove("slide-out-left");
+    const resultModal = document.getElementById('resultModal');
+    resultModal.style.display = 'none';
 
-        const imgPreview = document.getElementById('image-preview');
-        imgPreview.src = '';
-        imgPreview.style.display = 'none';
+    const stepBox1 = document.querySelector(".step-box-1");
+    stepBox1.style.display = 'block';
+    stepBox1.classList.remove("slide-out-left");
 
-        const seeResultButton = document.querySelector('.see-result');
-        seeResultButton.classList.add('hidden');
-        const seeaiButton = document.querySelector('.see-ai');
-        seeaiButton.classList.add('hidden');
-    });
+    const imgPreview = document.getElementById('image-preview');
+    imgPreview.src = '';
+    imgPreview.style.display = 'none';
+
+    const seeResultButton = document.querySelector('.see-result');
+    seeResultButton.classList.add('hidden');
+    const seeaiButton = document.querySelector('.see-ai');
+    seeaiButton.classList.add('hidden');
+
+    // 페이지 새로고침
+    location.reload();
+});
+
 }
 
 // 이미지 로드를 캔버스에 그리는 함수

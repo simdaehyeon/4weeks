@@ -37,7 +37,6 @@ header h1 {
     width: 100%;
     height: 400px;
 }
-
 .step-box-1 {
     display: flex;
     flex-direction: column;
@@ -49,7 +48,7 @@ header h1 {
     margin: 20px 0;
     position: absolute;
     width: 100%;
-    height: 600px;
+    height: 700px; /* 높이를 500px로 조정 */
     clip-path: polygon(0 0, calc(100% - 300px) 0, calc(100% - 300px) 70px, 100% 70px, 100% 100%, 0 100%);
     z-index: 3;
     border: 2px solid #000;
@@ -68,7 +67,7 @@ header h1 {
     margin: 20px 0;
     position: absolute;
     width: 100%;
-    height: 600px;
+    height: 700px; /* 높이를 500px로 조정 */
     clip-path: polygon(0 0, calc(100% - 200px) 0, calc(100% - 200px) 70px, 100% 70px, 100% 100%, 0 100%);
     z-index: 2;
     top: 50px;
@@ -89,14 +88,16 @@ header h1 {
     margin: 20px 0;
     position: absolute;
     width: 100%;
-    height: 600px;
+    height: 700px; /* 높이를 500px로 조정 */
     clip-path: polygon(0 0, calc(100% - 100px) 0, calc(100% - 100px) 70px, 100% 70px, 100% 100%, 0 100%);
     z-index: 1;
-    top: 50px;
+    top: 70px;
     left: 0;
     border: 2px solid #000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+
 
 .step-header {
     display: flex;
@@ -455,14 +456,20 @@ form {
     animation: rotate-loading 3s linear infinite;
     transform-origin: 50% 50%;
 }
+
+.step-box-3 {
+    position: relative; /* 상대 위치 설정 */
+}
+
 .chatting-container {
-    width: 1400px;
+    width: 1200px; /* 고정된 너비를 설정 */
     height: 500px;
     background-color: white;
     border: 1px solid #000000;  
     position: absolute;
-    margin-left: 250px;
-    margin-top: 500px;
+    left: 50%; /* 화면 가운데 정렬 */
+    transform: translateX(-50%); /* 가운데 정렬을 위한 이동 */
+    margin-top: 540px;
     border-radius: 5%;
     border-width: 3px;
     display: flex;
@@ -481,6 +488,8 @@ form {
     border-top: 1px solid #ccc;
     background-color: #f9f9f9;
     padding: 10px;
+    width: 98.5%;
+    border-radius: 10px;
 }
 
 #user-input {
@@ -488,7 +497,7 @@ form {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-}
+ }
 
 #chat-form button {
     padding: 10px;
@@ -513,11 +522,17 @@ form {
 .user-message {
     background-color: #e1ffc7;
     text-align: right;
-    float: right; /* 오른쪽 벽에 붙이기 */
+    float: right;  
+    color: #007BFF;  
+
 }
 
 .bot-message {
     background-color: #f1f1f1;
     text-align: left;
-    float: left; /* 왼쪽 벽에 붙이기 */
+    float: left;  
+    color: #28A745;  
+
 }
+
+ 
