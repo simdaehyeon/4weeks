@@ -647,8 +647,8 @@ function startApp() {
         });
     }
 
-    // 메시지를 채팅창에 추가하는 함수
-    function addMessageToChat(sender, message) {
+       // 메시지를 채팅창에 추가하는 함수
+       function addMessageToChat(sender, message) {
         const chatMessages = document.getElementById('chat-messages');
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message');
@@ -658,7 +658,7 @@ function startApp() {
         chatMessages.scrollTop = chatMessages.scrollHeight; // 스크롤을 맨 아래로 이동
     }
 
-   // 채팅폼 이벤트 리스너
+    // 채팅폼 이벤트 리스너
     const chatForm = document.getElementById('chat-form');
     chatForm.addEventListener('submit', async function (event) {
         event.preventDefault(); // 폼 제출 기본 동작을 방지 (페이지 새로고침 방지)
@@ -671,12 +671,18 @@ function startApp() {
         // GPT API 호출
         try {
             console.log('Sending message to GPT API:', userMessage);
-            const response = await fetch('/openai-chat', { // '/openai-chat' 엔드포인트로 POST 요청을 보냄
+
+            // 분석 결과와 사용자 메시지를 함께 전송
+            const emotionResultText = document.querySelector("#emotionResult").innerText;
+            const skinResultText = document.querySelector("#skinResult").innerText;
+            const resultsText = `${emotionResultText}\n${skinResultText}`;
+
+            const response = await fetch('/openai-chat', { // 새로운 엔드포인트로 요청 전송
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ message: userMessage }) // 메시지를 JSON 형식으로 변환하여 전송
+                body: JSON.stringify({ message: userMessage, resultsText }) // 메시지와 결과를 함께 전송
             });
 
             if (response.ok) {
