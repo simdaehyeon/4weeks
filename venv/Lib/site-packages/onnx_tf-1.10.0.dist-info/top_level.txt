@@ -1,3 +1,0 @@
-onnx_tf
-test
-third_party

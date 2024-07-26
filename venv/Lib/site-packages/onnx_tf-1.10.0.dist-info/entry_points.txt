@@ -1,3 +1,0 @@
-[console_scripts]
-onnx-tf = onnx_tf.cli:main
-
