@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 
 // OpenAI API 키 설정
-const openaiApiKey = 'df-df-df'; // 실제 OpenAI API 키로 교체하세요
+const openaiApiKey = ' ㅇㄹ-ㅇㄹ - ㅇㄹ'; // 실제 OpenAI API 키로 교체하세요
 
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname)));
@@ -32,7 +32,7 @@ app.post('/openai', async (req, res) => {
         const gptResponse = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-3.5-turbo",
             messages: [
-                { role: "system", content: "먼저 감정에 대해서 설명하고 부정적인 감정은 최대한 긍정적이게 대답을 해줘 그리고 나이에 맞게 피부관련되서 얘기해주면 좋아 마지막에는 조언을 해줘" },
+                { role: "system", content: "먼저 감정에 대해서 설명하고 부정적인 감정은 최대한 긍정적이게 대답을 해줘 그리고 나이에 맞게 피부관련되서 얘기해주면 좋아 마지막에는 조언을 해줘 이모티콘도 같이 넣어줘" },
                 { role: "user", content: userMessage }
             ],
             max_tokens: 1024, // 최대 글자수 설정
