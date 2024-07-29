@@ -13,4 +13,7 @@ venv/Lib/site-packages/torch/lib/torch_cpu.dll filter=lfs diff=lfs merge=lfs -te
 *.pyd filter=lfs diff=lfs merge=lfs -text
 *.lib filter=lfs diff=lfs merge=lfs -text
 *.dll filter=lfs diff=lfs merge=lfs -text
+<<<<<<< HEAD
 *.psd filter=lfs diff=lfs merge=lfs -text
+=======
+>>>>>>> 958c0e8f5afc79611340ae06cf1f950c24607ead

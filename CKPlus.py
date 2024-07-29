@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Conv2D, MaxPool2D, Flatten, Dropout, Dense, BatchNormalization
+from tensorflow.keras.layers import Input, Conv2D, MaxPool2D, Flatten, Dropout, Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
@@ -27,6 +28,8 @@ def load_data(data_path, emotion_labels):
             if img is not None:
                 img = cv2.resize(img, (224, 224))  
                 img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)  
+                img = cv2.resize(img, (48, 48))
+                images.append(img)
                 labels.append(label)
     return np.array(images), np.array(labels)
 
@@ -40,6 +43,7 @@ labels_categorical = to_categorical(labels_encoded)
 
 # 데이터 정규화
 images = images.astype('float32') / 255.0
+images = np.expand_dims(images, -1)  # (N, 48, 48, 1)
 
 # 데이터 분할
 X_train, X_test, y_train, y_test = train_test_split(images, labels_categorical, test_size=0.2, random_state=42)
@@ -99,3 +103,26 @@ print(f'Test loss: {loss}, Test accuracy: {accuracy}')
 
 # 모델 저장
 model.save('C:/Users/user/Documents/GitHub/4weeks/emotion_model_with_bn.h5')
+input = Input(shape=(48, 48, 1))
+cnn1 = Conv2D(36, kernel_size=3, activation='relu')(input)
+cnn1 = MaxPool2D(pool_size=3, strides=2)(cnn1)
+cnn2 = Conv2D(64, kernel_size=3, activation='relu')(cnn1)
+cnn2 = MaxPool2D(pool_size=3, strides=2)(cnn2)
+cnn3 = Conv2D(128, kernel_size=3, activation='relu')(cnn2)
+cnn3 = MaxPool2D(pool_size=3, strides=2)(cnn3)
+dense = Flatten()(cnn3)
+dense = Dropout(0.3)(dense)
+dense = Dense(256, activation='relu')(dense)
+output = Dense(7, activation='softmax', name='emotion')(dense)
+emotion_model = Model(input, output)
+emotion_model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['categorical_accuracy'])
+
+# 모델 학습
+emotion_model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test))
+
+# 모델 평가
+loss, accuracy = emotion_model.evaluate(X_test, y_test)
+print(f'Test loss: {loss}, Test accuracy: {accuracy}')
+
+# 모델 저장
+emotion_model.save('C:/Users/user/Documents/GitHub/4weeks/emotion_model_no_l1.h5')
